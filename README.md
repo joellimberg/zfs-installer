@@ -53,7 +53,7 @@ The advantages of this project over the Ubuntu installer are:
 Start the live CD of a supported Linux distribution, then open a terminal and execute:
 
 ```sh
-GET https://git.io/JelI5 | sudo bash
+GET https://git.io/JcoAf | sudo bash
 ```
 
 then follow the instructions; halfway through the procedure, the GUI installer of the O/S will be launched.
@@ -63,7 +63,7 @@ then follow the instructions; halfway through the procedure, the GUI installer o
 Ubuntu Server requires a slightly different execution procedure:
 
 - when the installer welcome screen shows up, tap `Ctrl+Alt+F2`,
-- then type `curl -L https://git.io/JelI5 | sudo bash`.
+- then type `curl -L https://git.io/JcoAf | sudo bash`.
 
 then follow the instructions.
 
@@ -92,7 +92,7 @@ The installer itself can run over SSH (\[S\]Ubiquity of course needs to be still
 The program supports unattended installation, via environment variables. The program built-in help explains all the options:
 
 ```
-$ wget -qO- https://git.io/JelI5 | bash /dev/stdin --help
+$ wget -qO- https://git.io/JcoAf | bash /dev/stdin --help
 Usage: install-zfs.sh [-h|--help]
 
 Sets up and install a ZFS Ubuntu installation.

@@ -1227,9 +1227,6 @@ function create_pools_and_datasets {
   # Creating the datasets is not necessary, however, it avoids the annoying GRUB warning when updating
   # (`cannot open 'bpool/BOOT/ROOT': dataset does not exist`).
 
-  echo "v_pools_raid_type:"
-  echo ${v_pools_raid_type[@]}
-  echo
 
   if [[ ${v_pools_raid_type[@]} == "stripedmirrored" ]]; then
     zpool create \

@@ -1173,7 +1173,7 @@ function create_pools_and_datasets {
   # Stdin is ignored if the encryption is not set (and set via prompt).
   #
 
-  if [[ ${#v_pools_raid_type[@]} -eq "stripedmirrored" ]]; then
+  if [[ ${v_pools_raid_type[@]} -eq "stripedmirrored" ]]; then
     zpool create \
       "${encryption_options[@]}" \
       "${v_rpool_create_options[@]}" \
@@ -1227,7 +1227,7 @@ function create_pools_and_datasets {
   # Creating the datasets is not necessary, however, it avoids the annoying GRUB warning when updating
   # (`cannot open 'bpool/BOOT/ROOT': dataset does not exist`).
 
-  if [[ ${#v_pools_raid_type[@]} -eq "stripedmirrored" ]]; then
+  if [[ ${v_pools_raid_type[@]} -eq "stripedmirrored" ]]; then
     zpool create \
       -o cachefile=/etc/zfs/zpool.cache \
       "${v_bpool_create_options[@]}" \

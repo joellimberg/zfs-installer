@@ -677,6 +677,10 @@ function select_pools_raid_type {
       menu_entries_option+=(raidz3 RAIDZ3 OFF)
     fi
 
+    if [[ ${#v_selected_disks[@]} -eq 4 ]]; then
+      menu_entries_option+=(stripedmirrored "Striped+mirrored (RAID10)" OFF)
+    fi
+
     # Defaults (ultimately, arbitrary). Based on https://calomel.org/zfs_raid_speed_capacity.html.
 
     if [[ ${#v_selected_disks[@]} -ge 11 ]]; then
@@ -1168,12 +1172,24 @@ function create_pools_and_datasets {
   #
   # Stdin is ignored if the encryption is not set (and set via prompt).
   #
-  zpool create \
-    "${encryption_options[@]}" \
-    "${v_rpool_create_options[@]}" \
-    -O mountpoint=/ -O canmount=off -R "$c_zfs_mount_dir" -f \
-    "$v_rpool_name" "${v_pools_raid_type[@]}" "${rpool_disks_partitions[@]}" \
-    < "$c_passphrase_named_pipe"
+
+  if [[ ${#v_pools_raid_type[@]} -eq "stripedmirrored" ]]; then
+    zpool create \
+      "${encryption_options[@]}" \
+      "${v_rpool_create_options[@]}" \
+      -O mountpoint=/ -O canmount=off -R "$c_zfs_mount_dir" -f \
+      "$v_rpool_name" mirror "${rpool_disks_partitions[@]:0:2}" mirror "${rpool_disks_partitions[@]:2:2}" \
+      < "$c_passphrase_named_pipe"
+  else
+    zpool create \
+      "${encryption_options[@]}" \
+      "${v_rpool_create_options[@]}" \
+      -O mountpoint=/ -O canmount=off -R "$c_zfs_mount_dir" -f \
+      "$v_rpool_name" "${v_pools_raid_type[@]}" "${rpool_disks_partitions[@]}" \
+      < "$c_passphrase_named_pipe"
+  fi
+
+  
 
   # RPOOL DATASETS CREATION ############
 
@@ -1211,11 +1227,19 @@ function create_pools_and_datasets {
   # Creating the datasets is not necessary, however, it avoids the annoying GRUB warning when updating
   # (`cannot open 'bpool/BOOT/ROOT': dataset does not exist`).
 
-  zpool create \
-    -o cachefile=/etc/zfs/zpool.cache \
-    "${v_bpool_create_options[@]}" \
-    -O mountpoint=/boot -O canmount=off -R "$c_zfs_mount_dir" -f \
-    "$c_bpool_name" "${v_pools_raid_type[@]}" "${bpool_disks_partitions[@]}"
+  if [[ ${#v_pools_raid_type[@]} -eq "stripedmirrored" ]]; then
+    zpool create \
+      -o cachefile=/etc/zfs/zpool.cache \
+      "${v_bpool_create_options[@]}" \
+      -O mountpoint=/boot -O canmount=off -R "$c_zfs_mount_dir" -f \
+      "$c_bpool_name" mirror "${rpool_disks_partitions[@]:0:2}" mirror "${rpool_disks_partitions[@]:2:2}"
+  else
+    zpool create \
+      -o cachefile=/etc/zfs/zpool.cache \
+      "${v_bpool_create_options[@]}" \
+      -O mountpoint=/boot -O canmount=off -R "$c_zfs_mount_dir" -f \
+      "$c_bpool_name" "${v_pools_raid_type[@]}" "${bpool_disks_partitions[@]}"
+  fi
 
   zfs create -o canmount=off "$c_bpool_name/BOOT"
   zfs create -o mountpoint=/boot "$c_bpool_name/BOOT/ROOT"
